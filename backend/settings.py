@@ -94,12 +94,10 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-'''
 # Heroku: Update database configuration from $DATABASE_URL.
 DATABASES = {
     'default': dj_database_url.config(conn_max_age=500)
 }
-'''
 
 '''
 custom user related
