@@ -5,13 +5,13 @@ from django.db import transaction
 from rest_framework import generics, permissions, renderers, viewsets, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
-from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 
 from user.serializers import UserSerializer
 from user.models import CustomUser, CustomUserManager
 
-@method_decorator(csrf_exempt, name='dispatch')
+@csrf_exempt
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -33,7 +33,7 @@ class UserViewSet(viewsets.ModelViewSet):
         print(data)
         return Response(data)
 
-@method_decorator(csrf_exempt, name='dispatch')
+@csrf_exempt
 class AuthRegisterView(generics.CreateAPIView):
     permissions_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
