@@ -11,7 +11,6 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from user.serializers import UserSerializer
 from user.models import CustomUser, CustomUserManager
 
-@csrf_exempt
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -33,7 +32,6 @@ class UserViewSet(viewsets.ModelViewSet):
         print(data)
         return Response(data)
 
-@csrf_exempt
 class AuthRegisterView(generics.CreateAPIView):
     permissions_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer

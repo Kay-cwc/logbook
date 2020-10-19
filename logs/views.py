@@ -9,13 +9,11 @@ from logs.models import Log, Task
 from logs.serializers import LogsSerializer, TasksSerializer
 from logs.permissions import IsOwnerOrReadOnly
 
-@csrf_exempt
 class LogsViewSet(viewsets.ModelViewSet):
 
     queryset = Log.objects.all()
     serializer_class = LogsSerializer
 
-@csrf_exempt
 class TasksViewSet(viewsets.ModelViewSet):
 
     queryset = Task.objects.all()
