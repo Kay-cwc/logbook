@@ -1,4 +1,3 @@
-import dj_database_url
 import os
 import datetime
 #import django_heroku
@@ -16,7 +15,7 @@ SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&k3q+pmu)5%asj6yjpkag')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = False
 
@@ -95,10 +94,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-# Heroku: Update database configuration from $DATABASE_URL.
-DATABASES = {
-    'default': dj_database_url.config(conn_max_age=500)
-}
 
 '''
 custom user related
@@ -123,6 +118,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'user.serializers.UserSerializer',
 }
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'user.serializers.CustomRegisterSerializer',
+}
+
+ACCOUNT_ADAPTER = 'user.adapter.CustomAccountAdapter'
 
 
 REST_FRAMEWORK = {
