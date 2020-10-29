@@ -116,11 +116,12 @@ used allauser module to execute
 AUTH_USER_MODEL = 'user.CustomUser'
 
 # sendgrid via web interface
+'''
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 FROM_EMAIL = 'kaytoncwc@gmail.com'
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False # for dev env
-
+'''
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
