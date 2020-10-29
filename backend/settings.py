@@ -2,6 +2,12 @@ import os
 import datetime
 #import django_heroku
 
+# env variable
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -42,7 +48,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     'rest_auth.registration',
+    'sendgrid_backend',
     # api documentation
     'drf_yasg',
     # my own app
@@ -90,8 +98,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'logbook',
+        'USER': 'logbook-local',
+        'PASSWORD': 'guR8%@fj9FpsE$Yw',
+        'HOST': '127.0.0.1',
+        'PORT': '5432'
+
     }
 }
 
@@ -102,6 +115,12 @@ used allauser module to execute
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
+# sendgrid via web interface
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+FROM_EMAIL = 'kaytoncwc@gmail.com'
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False # for dev env
+
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
@@ -111,6 +130,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 #ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 #ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/?verification=1'
 #ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/?verification=1'
+
 
 SITE_ID = 1
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

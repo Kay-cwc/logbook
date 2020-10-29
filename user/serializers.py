@@ -9,12 +9,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            'email',
             'id',
+            'email',
             'alias',
-            'is_active',
-            'is_admin',
-            'last_login',
         ]
 
 class CustomRegisterSerializer(RegisterSerializer):

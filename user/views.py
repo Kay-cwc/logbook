@@ -8,52 +8,37 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 
+# swagger
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+
 from user.serializers import UserSerializer
 from user.models import CustomUser, CustomUserManager
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
+class SearchUserViewSet(viewsets.ViewSet):
+    
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
 
-    @action(detail=False, methods=['GET'])
-    def all_user(self, request, *args, **kwargs,):
-        '''
-        add filter param here
-        '''
+    @swagger_auto_schema(operation_summary='', manual_parameters=[
+        openapi.Parameter(name='field', in_=openapi.IN_QUERY,
+                          description='field', type=openapi.TYPE_STRING),
+    ])
+    def search(self, request, *args, **kwargs,):
+
+        param = request.query_params.get('field')
+        print(param)
         queryset = CustomUser.objects.all()
-        serializer = UserSerializer(queryset, many=True)
+        queryset = queryset.filter(email__contains=param) | queryset.filter(alias__contains=param)
+        #queryset = queryset.filter(alias__contains=param, email__contains=param)
+        print(queryset)
+        serializers = UserSerializer(queryset, many=True)
+        print(serializers.data)
+        
         data = {
-            'data': serializer.data
+            'search_param': param,
+            'data': serializers.data
         }
-        print(data)
         return Response(data)
-
-class AuthRegisterView(generics.CreateAPIView):
-    permissions_classes = (permissions.AllowAny,)
-    serializer_class = UserSerializer
-    queryset = CustomUser.objects.all()
-
-    @transaction.atomic
-    def post(self, request, format=None):
-        #serializer = UserSerializer(data=request.data)
-        print('==============================')
-        param = request.data
-        email = param.get('email')
-        password = param.get('password')
-        print(request.data)
-        user = CustomUser(email=email)
-        user.set_password(password)
-        user.is_active = True
-        user.is_admin = False
-        user.save()
-        print('==============================')
-
-        print(user)
-        respones_data = {
-            'data': user
-        }
-        return Response(respones_data, status=status.HTTP_201_CREATED)

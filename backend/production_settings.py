@@ -16,6 +16,7 @@ ALLOWED_HOSTS = ['*']
 
 # Turn off DEBUG mode.
 DEBUG = False
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
 SESSION_COOKIE_SECURE = True
 

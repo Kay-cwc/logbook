@@ -53,17 +53,22 @@ class UserChangeForm(forms.ModelForm):
         # field does not have access to the initial value
         return self.initial["password"]
 
+def batch_deactivate(self, request, queryset):
+    queryset.update(is_active=False)
+    batch_deactivate.short_description = "deactivate"
 
 class UserAdmin(BaseUserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm
+    actions = [batch_deactivate]
+
 
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('alias', 'email', 'is_admin')
-    list_filter = ('is_admin',)
+    list_display = ('alias', 'email', 'is_active', 'is_admin')
+    list_filter = ('is_admin', 'is_active')
     fieldsets = (
         (None, {'fields': ('email', 'alias', 'password')}),
         ('Permissions', {'fields': ('is_admin',)}),
