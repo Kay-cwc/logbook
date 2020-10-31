@@ -32,7 +32,7 @@ class Task(models.Model):
     last_update = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=2, choices=STATUS_CHOICES, default='OP')
 
-    task_members = ArrayField(models.IntegerField(blank=True), default=list)
+    #task_members = ArrayField(models.IntegerField(blank=True), default=list)
 
     created_by = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE)
 
