@@ -33,7 +33,7 @@ class Task(models.Model):
     status = models.CharField(max_length=2, choices=STATUS_CHOICES, default='OP')
 
     #task_members = ArrayField(models.IntegerField(blank=True), default=list)
-
+    task_members= models.CharField(max_length=999, blank=True)
     created_by = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE)
 
     def __str__(self):
