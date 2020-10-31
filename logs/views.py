@@ -129,7 +129,7 @@ class TasksViewSet(viewsets.ModelViewSet):
 
         task_members_obj = []
 
-        for member_id in serializers.data['task_members']:
+        for member_id in serializers.data['task_members'].split(','):
             member_obj = CustomUser.objects.get(id=member_id)
             member_obj = UserSerializer(member_obj).data
             task_members_obj.append(member_obj)
