@@ -120,13 +120,6 @@ class TasksViewSet(viewsets.ModelViewSet):
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
         queryset = Task.objects.all()
         serializers = TasksSerializer(queryset, many=True)
-        for item in serializers.data:
-            print(type(item))
-            user_id = item['created_by']
-            creater_obj = CustomUser.objects.get(id=user_id)
-            creater = UserSerializer(creater_obj).data
-            print(type(creater))
-            item.update({'created_by_alias': creater['alias']})
         data = {
             'data': serializers.data
         }
