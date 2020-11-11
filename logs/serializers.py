@@ -27,6 +27,7 @@ class TasksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
+        depth = 1
 
     def create(self, validated_data):
         return Task.objects.create(**validated_data)
