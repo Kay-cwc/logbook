@@ -60,13 +60,13 @@ class LogsViewSet(viewsets.ModelViewSet):
         if taskid != None:
             queryset = queryset.filter(project=taskid)
         serializers = LogsSerializer(queryset, many=True)
-        for item in serializers.data:
-            print(type(item))
-            user_id = item['created_by']
-            creater_obj = CustomUser.objects.get(id=user_id)
-            creater = UserSerializer(creater_obj).data
-            print(type(creater))
-            item.update({'created_by_alias': creater['alias']})
+        # for item in serializers.data:
+        #     print(type(item))
+        #     user_id = item['created_by']
+        #     creater_obj = CustomUser.objects.get(id=user_id)
+        #     creater = UserSerializer(creater_obj).data
+        #     print(type(creater))
+        #     item.update({'created_by_alias': creater['alias']})
         data = {
             'data': serializers.data
         }
@@ -131,9 +131,6 @@ class TasksViewSet(viewsets.ModelViewSet):
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
         queryset = Task.objects.get(pk=pk)
         serializers = TasksSerializer(queryset, many=False)
-        # user_id = serializers.data['created_by']
-        # creater_obj = CustomUser.objects.get(id=user_id)
-        # creater = UserSerializer(creater_obj).data
 
         task_members_obj = []
 

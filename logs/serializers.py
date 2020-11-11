@@ -14,6 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class LogsSerializer(serializers.ModelSerializer):
 
+    created_by = UserSerializer()
+
     class Meta:
         model = Log
         fields = '__all__'
