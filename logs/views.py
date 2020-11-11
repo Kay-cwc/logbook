@@ -33,6 +33,22 @@ class LogsViewSet(viewsets.ModelViewSet):
         }
         return Response(data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, pk=None):
+        user = request.user
+        param = request.data 
+
+        log = Log.objects.get(pk=pk)
+        log.subject = param['subject'] if param['subject'] is not None else log.subject
+        log.detail = param['detail'] if param['detail'] is not None else log.description
+
+        log.save()
+
+        serializers = LogsSerializer(log)
+        data = {
+            'data': serializers.data
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
+
     def list(self, request):
         current_user = request.user
         if current_user == None:
@@ -96,7 +112,6 @@ class TasksViewSet(viewsets.ModelViewSet):
         data = {
             'data': serializers.data
         }
-        print(serializers.data)
         return Response(data, status=status.HTTP_201_CREATED)
 
     def list(self, request):

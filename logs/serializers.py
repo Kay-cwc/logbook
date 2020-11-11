@@ -10,6 +10,7 @@ class LogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
         fields = '__all__'
+        depth = 1
 
     def create(self, validated_data):
         return Log.objects.create(**validated_data)
