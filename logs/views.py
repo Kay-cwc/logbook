@@ -142,22 +142,19 @@ class TasksViewSet(viewsets.ModelViewSet):
         # creater_obj = CustomUser.objects.get(id=user_id)
         # creater = UserSerializer(creater_obj).data
 
-        # task_members_obj = []
+        task_members_obj = []
 
-        # for member_id in serializers.data['task_members'].split(','):
-        #     member_obj = CustomUser.objects.get(id=member_id)
-        #     member_obj = UserSerializer(member_obj).data
-        #     task_members_obj.append(member_obj)
+        for member_id in serializers.data['task_members'].split(','):
+            member_obj = CustomUser.objects.get(id=member_id)
+            member_obj = UserSerializer(member_obj).data
+            task_members_obj.append(member_obj)
 
-        # newData = {
-        #     'created_by_alias': creater['alias'],
-        #     'task_members_obj': task_members_obj
+        newData = {
+            'task_members_obj': task_members_obj
+        }
+        newData.update(serializers.data)
 
-        # }
-        # newData.update(serializers.data)
-
-        # return Response(newData, status=status.HTTP_200_OK)
-        return Response(serializers.data, status=status.HTTP_200_OK)
+        return Response(newData, status=status.HTTP_200_OK)
         
 
 
