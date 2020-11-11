@@ -2,8 +2,15 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 
 from logs.models import Log, Task
+from user.models import CustomUser
 import json
 
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        exclude = ('password', )
 
 class LogsSerializer(serializers.ModelSerializer):
 
@@ -23,6 +30,8 @@ class LogsSerializer(serializers.ModelSerializer):
 
 
 class TasksSerializer(serializers.ModelSerializer):
+
+    created_by = UserSerializer()
 
     class Meta:
         model = Task
