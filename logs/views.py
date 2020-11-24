@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from user.models import CustomUser
 from user.serializers import UserSerializer
@@ -55,18 +56,10 @@ class LogsViewSet(viewsets.ModelViewSet):
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
         param = request.query_params
         taskid = param.get('taskid') if param.get('taskid') is not None else None
-        print(param.get('taskid'))
         queryset = Log.objects.all()
         if taskid != None:
             queryset = queryset.filter(project=taskid)
         serializers = LogsSerializer(queryset, many=True)
-        # for item in serializers.data:
-        #     print(type(item))
-        #     user_id = item['created_by']
-        #     creater_obj = CustomUser.objects.get(id=user_id)
-        #     creater = UserSerializer(creater_obj).data
-        #     print(type(creater))
-        #     item.update({'created_by_alias': creater['alias']})
         data = {
             'data': serializers.data
         }
@@ -76,43 +69,66 @@ class TasksViewSet(viewsets.ModelViewSet):
 
     queryset = Task.objects.all()
     serializer_class = TasksSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        param = request.data
-        task = Task(
-            created_by=user,
-            subject=param['subject'],
-            description=param['description'],
-            task_members=param['task_members']
-        )
-        serializers = TasksSerializer(task)
-        task.save()
-        data = {
-            'data': serializers.data
-        }
-        print(serializers.data)
-        return Response(data, status=status.HTTP_201_CREATED)
+        if user.group == None:
+            data = {
+                'data': 'action unauthorized'
+            }
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+        elif user.group.name == 'manager':
+            param = request.data
+            team_member_list = param['task_members'].strip()
+            if len(team_member_list) == 0:
+                team_member_list = [user.id]
+            else:
+                team_member_list = team_member_list.split(',')
+            if not user.id in team_member_list:
+                team_member_list.append(user.id)
+            team_member_list = ",".join(map(str,team_member_list))
+            task = Task(
+                created_by=user,
+                subject=param['subject'],
+                description=param['description'],
+                task_members=team_member_list
+            )
+            serializers = TasksSerializer(task)
+            task.save()
+            data = {
+                'data': serializers.data
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            data = {
+                'data': 'action unauthorized'
+            }
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
 
     def update(self, request, pk=None):
         user = request.user
         param = request.data 
-        print(param)
+        task = Task.objects.filter(pk=pk)[0]
+        
+        if task.created_by == user:
 
-        task = Task.objects.get(pk=pk)
-        task.created_by = user
-        task.subject = param['subject'] if param['subject'] is not None else task.subject
-        task.description = param['description'] if param['description'] is not None else task.description
-        task.task_members = param['task_members'] if param['task_members'] is not None else task.task_members
-        task.status = param['status'] if param['status'] is not None else task.status
-
-        task.save()
-
-        serializers = TasksSerializer(task)
-        data = {
-            'data': serializers.data
-        }
-        return Response(data, status=status.HTTP_201_CREATED)
+            for key, value in param.items():
+                setattr(task, key, value)
+            task.save()
+            
+            serializers = TasksSerializer(task)
+            data = {
+                'data': serializers.data
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            data = {
+                'data': 'action unauthorized'
+            }
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
 
     def list(self, request):
         current_user = request.user

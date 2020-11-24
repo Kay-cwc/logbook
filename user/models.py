@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
+from django.contrib.auth.models import Group
 from .managers import CustomUserManager
 
 
@@ -14,6 +15,7 @@ class CustomUser(AbstractBaseUser):
     alias = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
 
     objects = CustomUserManager()
 
@@ -38,3 +40,4 @@ class CustomUser(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+

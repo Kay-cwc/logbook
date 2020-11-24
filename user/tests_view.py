@@ -6,8 +6,7 @@ from rest_framework.test import APIClient
 
 import json
 
-from user.models import CustomUser
-from .models import Task
+from .models import CustomUser
 
 c = APIClient()
 
@@ -22,7 +21,7 @@ def registration(email, password):
     content = json.loads(response.content).get('key')
     return content
 
-class TaskTestCase(TestCase):
+class UserViewTestCase(TestCase):
 
   def setUp(self):
     Group.objects.create(
@@ -32,51 +31,26 @@ class TaskTestCase(TestCase):
       name='manager'
     )
 
-  def test_create_task_authorised(self):
-    registration('user02@local.host', 'workw37techture')
-    key = registration('user01@local.host', 'workw37techture')
-    user = CustomUser.objects.filter(email='user01@local.host')[0]
-    group_manager = Group.objects.filter(name='manager')[0]
-    user.group = group_manager
-    user.save()
-
-    url = '/api/logs/tasks/'
-    # logged in and role == manager
-    c.login(email="user01@local.host", password="workw37techture")
+  def test_create_user(self):
+    url = '/api/user/auth/registration'
     data = {
-      'subject': 'subject01',
-      'description': 'description01',
-      'status': 'OP',
-      'task_members': '3,4',
+      'email': 'user02@local.host',
+      'password1': 'workw37techture',
+      'password2': 'workw37techture'
     }
     response = c.post(url, data)
-    c.logout()
     self.assertEqual(response.status_code, 201)
 
-    # logged in and role != manager
-    c.login(email="user02@local.host", password="workw37techture")
-    data = {
-      'subject': 'subject02',
-      'description': 'description01',
-      'status': 'OP',
-      'task_members': '3,4',
-    }
-    response = c.post(url, data)
-    c.logout()
-    self.assertEqual(response.status_code, 401)
+  def test_get_user_profile(self):
 
-    # annoymous user
-    data = {
-      'subject': 'subject03',
-      'description': 'description01',
-      'status': 'OP',
-      'task_members': '3,4',
-    }
-    response = c.post(url, data)
-    c.logout()
-    self.assertEqual(response.status_code, 401)
+    key = registration('user01@local.host', 'workw37techture')
+    url = '/api/user/auth/user/'
+    c.login(email="user01@local.host", password="workw37techture")
+    response = c.get(url)
+    self.assertEqual(response.status_code, 200)
 
-  def test_update_task_authorised(self):
+  def test_assign_user_group_authorized(self):
+    # only admin can create 
     registration('user02@local.host', 'workw37techture')
     key = registration('user01@local.host', 'workw37techture')
     user = CustomUser.objects.filter(email='user01@local.host')[0]
@@ -84,38 +58,56 @@ class TaskTestCase(TestCase):
     user.group = group_manager
     user.save()
 
-    Task.objects.create(
-      subject='subject01',
-      description='description01',
-      status='OP',
-      task_members='3,4',
-      created_by=user
+    url = '/api/user/group/assign/'
+    c.login(email="user01@local.host", password="workw37techture")
+    data = {
+      'email': 'user02@local.host',
+      'groupId': 2
+    }
+    response = c.post(url, data)
+    self.assertEqual(
+      response.data.get('data').get('group').get('name'),
+      'editor'
     )
-    
-    task = Task.objects.filter(subject='subject01')[0]
-    taskId = task.id
-    url = '/api/logs/tasks/' + str(taskId) + '/'
-    c.login(email="user01@local.host", password="workw37techture")
-    data = {
-      'description': 'description02',
-      'status': 'FU',
-      'task_members': '3,4,5',
-    }
-    response = c.put(url, data)
-    c.logout()
-    self.assertEqual(response.status_code, 201)
 
+  def test_assign_user_group_unauthorized(self):
+    # if not admin, return 401
+    registration('user02@local.host', 'workw37techture')
+
+    url = '/api/user/group/assign/'
     c.login(email="user02@local.host", password="workw37techture")
     data = {
-      'description': 'description03',
-      'task_members': '3',
+      'email': 'user02@local.host',
+      'groupId': 2
     }
-    response = c.put(url, data)
-    c.logout()
+    response = c.post(url, data)
     self.assertEqual(response.status_code, 401)
 
-  
 
-
+  def test_get_user_list_anonymous(self):
+    url = '/api/user/group/'
+    response = c.get(url)
+    self.assertEqual(response.status_code, 403)
     
+
+  def test_get_user_list_authenticated(self):
+    registration('user02@local.host', 'workw37techture')
+    registration('user03@local.host', 'workw37techture')
+    registration('user04@local.host', 'workw37techture')
+    registration('user01@local.host', 'workw37techture')
+    user = CustomUser.objects.filter(email='user01@local.host')[0]
+    group_manager = Group.objects.filter(name='manager')[0]
+    user.group = group_manager
+    user.save()
+
+    url = '/api/user/group/'
+
+    c.login(email="user01@local.host", password="workw37techture")
+    response = c.get(url)
+    c.logout()
+    self.assertEqual(response.status_code, 200)
+
+    c.login(email="user02@local.host", password="workw37techture")
+    response = c.get(url)
+    self.assertEqual(response.status_code, 401)
 

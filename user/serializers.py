@@ -12,7 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'alias',
+            'group',
         ]
+        depth = 1
 
 class CustomRegisterSerializer(RegisterSerializer):
     alias = serializers.CharField(

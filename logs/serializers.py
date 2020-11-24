@@ -11,6 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         exclude = ('password', )
+        ref_name = "log_user_serializer"
 
 class LogsSerializer(serializers.ModelSerializer):
 
