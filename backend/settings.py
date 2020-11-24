@@ -161,7 +161,8 @@ AUTH_PASSWORD_VALIDATORS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    'https://infallible-mccarthy-71a84e.netlify.app'
+    'https://infallible-mccarthy-71a84e.netlify.app',
+    'https://ifyouarehappyandyouknowitsay.com',
 ]
 
 CORS_ORIGIN_WHITELIST = ['*']
