@@ -131,15 +131,37 @@ class TasksViewSet(viewsets.ModelViewSet):
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
 
     def list(self, request):
-        current_user = request.user
-        if current_user == None:
+        user = request.user
+        if user == None:
+            data = {
+                'data': 'please login first ',
+                'accessRight': 'ANONYMOUS',
+            }
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-        queryset = Task.objects.all()
-        serializers = TasksSerializer(queryset, many=True)
-        data = {
-            'data': serializers.data
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        if user.group == None: 
+            data = {
+                'data': 'You must be a manager or an editor to view tasks. Please contact your administrator.',
+                'accessRight': 'REGISTERED'
+            }
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+        elif user.group.name == 'manager':
+            queryset = Task.objects.all()
+            serializers = TasksSerializer(queryset, many=True)
+            data = {
+                'data': serializers.data,
+                'accessRight': 'MANAGER',
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            userId = user.id
+            queryset = Task.objects.filter(task_members__icontains=userId)
+            serializers = TasksSerializer(queryset, many=True)
+            data = {
+                'data': serializers.data,
+                'accessRight': 'EDITOR',
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
 
     def retrieve(self, request, pk=None):
         current_user = request.user

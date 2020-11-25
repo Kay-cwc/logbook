@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
 from django.db import transaction
 from django.contrib.auth.models import Group
+from django.core import serializers
 
 from rest_framework import generics, permissions, renderers, viewsets, status
 from rest_framework.decorators import action, permission_classes
@@ -9,6 +10,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
+import json
 
 # swagger
 from drf_yasg.utils import swagger_auto_schema
@@ -105,7 +108,22 @@ class UserGroupViewSet(viewsets.ViewSet):
                 'data': 'action unauthorized'
             }
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-
+    
+    @action(detail=False, methods=['GET'])
+    def groupList(self, request, *args, **kwargs):
+        
+        group = Group.objects.all()
+        group = json.loads(serializers.serialize('json', group))
+        groupList = list()
+        for data in group:
+            obj = dict()
+            obj['id'] = data.get('pk')
+            obj['name'] = data.get('fields').get('name')
+            groupList.append(obj)
+        data = {
+            'data': groupList
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 
 
