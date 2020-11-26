@@ -164,25 +164,34 @@ class TasksViewSet(viewsets.ModelViewSet):
 
 
     def retrieve(self, request, pk=None):
-        current_user = request.user
-        if current_user == None:
+        user = request.user
+        if user == None:
             return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-        queryset = Task.objects.get(pk=pk)
-        serializers = TasksSerializer(queryset, many=False)
 
-        task_members_obj = []
+        if user.group == None: 
+            data = {
+                'data': 'You must be a manager or an editor to view tasks. Please contact your administrator.',
+                'accessRight': 'REGISTERED'
+            }
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+        else:            
+            queryset = Task.objects.get(pk=pk)
+            serializers = TasksSerializer(queryset, many=False)
 
-        for member_id in serializers.data['task_members'].split(','):
-            member_obj = CustomUser.objects.get(id=member_id)
-            member_obj = UserSerializer(member_obj).data
-            task_members_obj.append(member_obj)
+            task_members_obj = []
 
-        newData = {
-            'task_members_obj': task_members_obj
-        }
-        newData.update(serializers.data)
+            for member_id in serializers.data['task_members'].split(','):
+                member_obj = CustomUser.objects.get(id=member_id)
+                member_obj = UserSerializer(member_obj).data
+                task_members_obj.append(member_obj)
 
-        return Response(newData, status=status.HTTP_200_OK)
+            newData = {
+                'task_members_obj': task_members_obj,
+                'accessRight': user.group.name
+            }
+            newData.update(serializers.data)
+
+            return Response(newData, status=status.HTTP_200_OK)
         
 
 
