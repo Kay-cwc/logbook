@@ -22,7 +22,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         mail_subject = 'Activate your account'
         mail_content = {
             'email': user.email,
-            'domain': current_site.domain,
+            'domain': 'ifyouarehappyandyouknowitsay.com',
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user)
         }
