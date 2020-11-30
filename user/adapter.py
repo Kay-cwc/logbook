@@ -20,6 +20,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         # email confirmation
         current_site = get_current_site(request)
         mail_subject = 'Activate your account'
+        user.save()
         mail_content = {
             'email': user.email,
             'domain': 'raccat-logbook.herokuapp.com',
@@ -39,6 +40,4 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         )  
         activation_email.send()   
 
-        # create user    
-        user.save()
         return user

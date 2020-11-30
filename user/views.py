@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, get_user_model, login
 from django.db import transaction
 from django.contrib.auth.models import Group
 from django.core import serializers
+from django.http import HttpResponse
 
 from rest_framework import generics, permissions, renderers, viewsets, status
 from rest_framework.decorators import action, permission_classes
@@ -29,12 +30,13 @@ def activate(request, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
         user = CustomUser.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        print(user)
+    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)
+        # login(request, user)
         # return redirect('home')
         return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
     else:
