@@ -3,6 +3,7 @@ from django.test import Client
 from django.contrib.auth.models import Group
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
+from django.core import mail
 
 import json
 
@@ -21,6 +22,19 @@ def registration(email, password):
     content = json.loads(response.content).get('key')
     return content
 
+class EmailTest(TestCase):
+  def test_send_email(self):
+    # send email
+    mail.send_mail(
+      'subject here',
+      'email message',
+      'admin@ifyouarehappyandyouknowitsay.com',
+      ['kaytoncwc@gmail.com'],
+      fail_silently=False
+    )
+    self.assertEqual(len(mail.outbox), 1)
+    self.assertEqual(mail.outbox[0].subject, 'subject here')
+
 class UserViewTestCase(TestCase):
 
   def setUp(self):
@@ -30,7 +44,7 @@ class UserViewTestCase(TestCase):
     Group.objects.create(
       name='manager'
     )
-
+  
   def test_create_user(self):
     url = '/api/user/auth/registration'
     data = {

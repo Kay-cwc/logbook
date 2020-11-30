@@ -13,11 +13,11 @@ class CustomUser(AbstractBaseUser):
         unique=True,
     )
     alias = models.CharField(max_length=50, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
 
-    objects = CustomUserManager()
+    # objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

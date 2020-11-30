@@ -11,15 +11,35 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+# activation email
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+from .tokens import account_activation_token
+
 import json
 
 # swagger
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-
 from user.serializers import UserSerializer
 from user.models import CustomUser, CustomUserManager
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        # return redirect('home')
+        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+    else:
+        return HttpResponse('Activation link is invalid!')
+
 
 class SearchUserViewSet(viewsets.ViewSet):
     

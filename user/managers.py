@@ -1,5 +1,14 @@
 from django.contrib.auth.base_user import BaseUserManager
 
+# email related module
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.core.mail import EmailMessage
+
+
+# from .tokens import account_activation_token
+
 
 class CustomUserManager(BaseUserManager):
     '''
@@ -11,12 +20,15 @@ class CustomUserManager(BaseUserManager):
         '''
         create user by email and passwrod
         '''
+        print(email)
         if not email:
             raise ValueError('The email must be set')
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.save()
+
+        # user.save()
+
         return user
 
     def create_superuser(self, email, password, **extra_fields):
