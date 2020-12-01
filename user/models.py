@@ -17,7 +17,7 @@ class CustomUser(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
 
-    # objects = CustomUserManager()
+    objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
